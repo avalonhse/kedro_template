@@ -56,29 +56,29 @@ shuttles:
   filepath: ${data_path}/01_raw/shuttles.xlsx
   layer: raw
 
-# data_processing.preprocessed_companies:
-#   type: pandas.ParquetDataSet
-#   filepath: ../../data/spaceflight_data/02_intermediate/preprocessed_companies.pq
-#   layer: intermediate
+data_processing.preprocessed_companies:
+  type: pandas.ParquetDataSet
+  filepath:  ${data_path}/02_intermediate/preprocessed_companies.pq
+  layer: intermediate
 
-# data_processing.preprocessed_shuttles:
-#   type: pandas.ParquetDataSet
-#   filepath: ../../data/spaceflight_data/02_intermediate/preprocessed_shuttles.pq
-#   layer: intermediate
+data_processing.preprocessed_shuttles:
+  type: pandas.ParquetDataSet
+  filepath: ${data_path}/02_intermediate/preprocessed_shuttles.pq
+  layer: intermediate
 
-# model_input_table:
-#   type: pandas.ParquetDataSet
-#   filepath: ../../data/spaceflight_data/03_primary/model_input_table.pq
-#   layer: primary
+model_input_table:
+  type: pandas.ParquetDataSet
+  filepath:  ${data_path}/03_primary/model_input_table.pq
+  layer: primary
 
-# data_science.active_modelling_pipeline.regressor:
-#   type: pickle.PickleDataSet
-#   filepath: ../../data/spaceflight_data/06_models/regressor_active.pickle
-#   versioned: true
-#   layer: models
+data_science.active_modelling_pipeline.regressor:
+  type: pickle.PickleDataSet
+  filepath:  ${data_path}/06_models/regressor_active.pickle
+  versioned: true
+  layer: models
 
-#data_science.candidate_modelling_pipeline.regressor:
-#  type: pickle.PickleDataSet
-#  filepath: ../../data/spaceflight_data/06_models/regressor_candidate.pickle
-#  versioned: true
-#  layer: models
+data_science.candidate_modelling_pipeline.regressor:
+ type: pickle.PickleDataSet
+ filepath:  ${data_path}/06_models/regressor_candidate.pickle
+ versioned: true
+ layer: models

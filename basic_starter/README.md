@@ -10,7 +10,7 @@ To use this starter, create a new Kedro project using the commands below. To mak
 
 ```bash
 pip install kedro
-kedro new --starter=./kedro_templates/basic_starter
+kedro new --starter=./kedro_template/basic_starter
 cd <my-project-name>  # change directory into newly created project directory
 ```
 
