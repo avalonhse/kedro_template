@@ -33,6 +33,7 @@ dependencies:
   - conda-forge:kedro[pandas]=0.18.3
   - conda-forge:kedro-mlflow=0.11.4
   - conda-forge:minio=7.1.12
+  - s3fs=2022.1.0
   - pip:
     - kedro-viz==5.1.1
     - kedro[pandas]
