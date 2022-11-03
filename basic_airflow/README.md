@@ -48,9 +48,9 @@ kedro mlflow ui
 kedro viz
 ```
 
-podman machine init --cpus=4 --disk-size=20 --memory=8192 -v /Volumes/My_Passport/VMO:/VMO
+podman machine init --cpus=4 --disk-size=20 --memory=8192 -v /Volumes/My_Passport/VMO:/VMO 
 
-podman run \
+podman run --name minio \
    -p 9000:9000 -d \
    -p 9090:9090 \
    -v /VMO/minio_data:/data \
@@ -58,4 +58,4 @@ podman run \
    -e "MINIO_ROOT_PASSWORD=minio123" \
    quay.io/minio/minio server /data --console-address ":9090" 
 
-
+podman stop minio | xargs docker rm
