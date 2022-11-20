@@ -19,7 +19,7 @@ with open("./conf/base/globals.yml", 'w') as f:
 
 from dotenv import load_dotenv
 from pathlib import Path
-dotenv_path = Path(parent_path + '/data/config/.env')
+dotenv_path = Path(parent_path + '/data/config/.minio_env')
 load_dotenv(dotenv_path=dotenv_path)
 MINIO_IP = str(os.getenv('MINIO_IP'))
 MINIO_USER = str(os.getenv('MINIO_USER'))
@@ -29,6 +29,6 @@ data = "dev_minio: \n key: " +  MINIO_USER + " \n secret: " + MINIO_PASSWD + " \
 with open("./conf/local/credentials.yml", 'a') as f:
     f.write(data)
 
-data_dirs = ["/01_raw","/02_intermediate","/03_primary","/06_models"]
+data_dirs = ["/01_raw","/02_intermediate","/03_primary","/06_models","/logs"]
 check_paths(data_dirs, data_path)
 

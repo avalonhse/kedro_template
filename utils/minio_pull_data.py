@@ -4,7 +4,7 @@ from pathlib import Path
 import os, yaml, sys
 from minio import Minio
 
-dotenv_path = Path('../../data/config/.env')
+dotenv_path = Path('../../data/config/.minio_env')
 load_dotenv(dotenv_path=dotenv_path)
 MINIO_IP = str(os.getenv('MINIO_IP'))
 MINIO_USER = str(os.getenv('MINIO_USER'))
