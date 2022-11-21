@@ -1,0 +1,209 @@
+seed: 0
+
+# # Generate simulated data
+# # "Sleeping dogs" (a.k.a. "do-not-disturb"; people who will "buy" if not
+# treated but will not "buy" if treated) can be simulated by negative values
+# in tau parameter.
+# # Observational data which includes confounding can be simulated by
+# non-zero values in propensity_coef parameter.
+# # A/B Test (RCT) with a 50:50 split can be simulated by all-zeros values
+# in propensity_coef parameter (default).
+# # The first element in each list parameter specifies the intercept.
+
+sim_params:
+  N: 1000
+  n_features: 3
+  beta: [0, -2, 3, -5] # Effect of [intercept and features] on outcome
+  error_std: 0.1
+  tau: [1, -5, -5, 10] # Effect of [intercept and features] on treated outcome
+  tau_std: 0.1
+  discrete_outcome: True
+  seed: { $: seed } # Anchor-less aliasing: Look up seed key in this YAML file
+  feature_effect: 0 # Effect of beta on treated outcome
+  propensity_coef: [0, -1, 1, -1] # Effect of [intercept and features] on propensity log-odds for treatment
+
+transform_params: {} # Add parameters for data transformation/feature engineering if any.
+
+test_size: 0.2
+
+causallift_params:
+  # Input DataFrame columns
+  cols_features: # None  # List of column names used as features. If None, all the columns except for outcome, propensity, CATE, and recommendation.
+  col_treatment: Treatment
+  col_outcome: Outcome
+
+  # Output DataFrame columns
+  col_propensity: Propensity
+  col_proba_if_treated: Proba_if_Treated
+  col_proba_if_untreated: Proba_if_Untreated
+  col_cate: CATE
+  col_recommendation: Recommendation
+  col_weight: Weight
+  index_name: index
+  partition_name: partition
+
+  # Propensity model settings
+  enable_ipw: True
+  min_propensity: 0.01 # Minimum propensity score.
+  max_propensity: 0.99 # Maximum propensity score.
+  propensity_model_params: # classifier such as https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html
+    =: sklearn.linear_model.LogisticRegression
+    C: 1.0
+    class_weight: # None
+    dual: False
+    fit_intercept: True
+    intercept_scaling: 1
+    max_iter: 100
+    multi_class: ovr
+    n_jobs: 1
+    penalty: l1
+    solver: liblinear
+    tol: 0.0001
+    warm_start: False
+
+  # Uplift model settings
+  uplift_model_params: # classifier such as https://xgboost.readthedocs.io/en/latest/python/python_api.html#xgboost.XGBClassifier
+    =: xgboost.XGBClassifier
+    max_depth: 3
+    learning_rate: 0.1
+    n_estimators: 100
+    verbose: 0
+    objective: "binary:logistic"
+    booster: "gbtree"
+    n_jobs: -1
+    nthread: # None
+    gamma: 0
+    min_child_weight: 1
+    max_delta_step: 0
+    subsample: 1
+    colsample_bytree: 1
+    colsample_bylevel: 1
+    reg_alpha: 0
+    reg_lambda: 1
+    scale_pos_weight: 1
+    base_score: 0.5
+    missing: # None
+
+  # Misc settings
+  seed: { $: seed } # Anchor-less aliasing: Look up seed key in this YAML file
+  verbose: 3 # How much info to show. 0 to show nothing, 1 to show only warning, 2 to show some info, 3 to show more info
+  df_print: to_string # Use pandas.DataFrame.to_string to show output data frames
+
+# PipelineX settings
+
+RUN_CONFIG:
+  pipeline_name: __default__
+  only_missing: False
+  runner: SequentialRunner
+  tags: # None
+  node_names: # None
+  from_nodes: # None
+  to_nodes: # None
+  from_inputs: # None
+  load_versions: # None
+
+__DISABLE__MLFLOW_LOGGING_CONFIG: # Remove __DISABLE__ to enable
+  uri: sqlite:///mlruns/sqlite.db
+  experiment_name: experiment_001
+  artifact_location: ../data/causalift/mlruns/experiment_001
+  offset_hours: 0
+  logging_artifacts: # None
+
+PIPELINES:
+  __default__:
+    =: pipelinex.FlexiblePipeline
+    module: # None
+    decorator: pipelinex.log_time
+    nodes:
+      ### Step 0: Prepare data
+
+      - inputs: "params:sim_params"
+        func: data_prep.generate_data.generate_data_
+        outputs: input_df
+
+      - inputs: [input_df, "params:transform_params"]
+        func: data_prep.transform_data.transform_data
+        outputs: transformed_df
+
+      - inputs: [transformed_df, "params:test_size", "params:seed"]
+        func: data_prep.split_data.split_data
+        outputs: [train_df, test_df]
+
+      ### Step 1: Prepare for Uplift modeling and optionally estimate propensity scores using a supervised classification model
+
+      - inputs: "params:causallift_params"
+        func:
+          =: pipelinex.Construct
+          obj: { =: easydict.EasyDict }
+        outputs: args_raw
+
+      - inputs: [args_raw, train_df, test_df]
+        func: causallift.nodes.utils.bundle_train_and_test_data
+        outputs: df_00
+
+      - inputs: [args_raw, df_00]
+        func: causallift.nodes.utils.impute_cols_features
+        outputs: args
+
+      - inputs: [args, df_00]
+        func: causallift.nodes.utils.treatment_fractions_
+        outputs: treatment_fractions
+
+      - inputs: [args, df_00]
+        func: causallift.nodes.estimate_propensity.fit_propensity
+        outputs: propensity_model
+
+      - inputs: [args, df_00, propensity_model]
+        func: causallift.nodes.estimate_propensity.estimate_propensity
+        outputs: df_01
+
+      - inputs: df_01
+        outputs: propensity_histgram
+
+      ### Step 2: Estimate CATE by 2 supervised classification models
+
+      # - inputs: [args, df_01]
+      #   func: causallift.nodes.model_for_each.model_for_treated_fit
+      #   outputs: treated__model_dict
+
+      # - inputs: [args, df_01]
+      #   func: causallift.nodes.model_for_each.model_for_untreated_fit
+      #   outputs: untreated__model_dict
+
+      # - inputs: [treated__model_dict, untreated__model_dict]
+      #   func: causallift.nodes.model_for_each.bundle_treated_and_untreated_models
+      #   outputs: uplift_models_dict
+
+      # - inputs: [args, df_01, uplift_models_dict]
+      #   func: causallift.nodes.model_for_each.model_for_treated_predict_proba
+      #   outputs: treated__proba
+
+      # - inputs: [args, df_01, uplift_models_dict]
+      #   func: causallift.nodes.model_for_each.model_for_untreated_predict_proba
+      #   outputs: untreated__proba
+
+      # - inputs: [treated__proba, untreated__proba]
+      #   func: causallift.nodes.model_for_each.compute_cate
+      #   outputs: cate_estimated
+
+      # - inputs: [args, df_01, cate_estimated, treated__proba, untreated__proba]
+      #   func: causallift.nodes.model_for_each.add_cate_to_df
+      #   outputs: df_02
+
+      ### Step 3 [Optional] Estimate impact by following recommendation based on CATE
+
+      # - inputs: [args, df_02, treatment_fractions]
+      #   func: causallift.nodes.utils.recommend_by_cate
+      #   outputs: df_03
+
+      # - inputs: [args, df_03, uplift_models_dict]
+      #   func: causallift.nodes.model_for_each.model_for_treated_simulate_recommendation
+      #   outputs: treated__sim_eval_df
+
+      # - inputs: [args, df_03, uplift_models_dict]
+      #   func: causallift.nodes.model_for_each.model_for_untreated_simulate_recommendation
+      #   outputs: untreated__sim_eval_df
+
+      # - inputs: [args, treated__sim_eval_df, untreated__sim_eval_df]
+      #   func: causallift.nodes.utils.estimate_effect
+      #   outputs: estimated_effect_df

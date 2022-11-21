@@ -48,7 +48,9 @@ dependencies:
   - s3fs=2022.1.0
   - pip:
     - kedro-viz==5.1.1
-    - kedro[pandas]
-    - pipelinex
+    - kedro[pandas]==0.18.3
+    - git+https://github.com/avalonhse/pipelinex
+    #- -e ../pipelinex
+    #- pipelinex==0.7.6
 
   

@@ -36,7 +36,7 @@ dependencies:
   - s3fs=2022.1.0
   - pip:
     - kedro-viz==5.1.1
-    - kedro[pandas]
+    - kedro[pandas]==0.18.3
 #variables:
 #  HDF5_DIR: 'C:\Program Files\HDF_Group\HDF5\1.12.2'
   

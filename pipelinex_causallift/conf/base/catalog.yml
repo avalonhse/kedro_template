@@ -1,0 +1,77 @@
+# [reference](https://kedro.readthedocs.io/en/latest/04_user_guide/04_data_catalog.html)
+# [datasets](https://kedro.readthedocs.io/en/latest/kedro.extras.datasets.html)
+
+input_df:
+  type: pandas.CSVDataSet
+  filepath: ../data/causalift/input/input_df.csv
+
+transformed_df:
+  type: pandas.CSVDataSet
+  filepath: ../data/causalift/load/transformed_df.csv
+
+df_00:
+  type: pandas.CSVDataSet
+  filepath: ../data/causalift/load/df_00.csv
+  load_args:
+    index_col: [partition, index]
+    float_precision: high
+  save_args:
+    index: True
+    float_format: "%.16e"
+
+propensity_model:
+  type: pickle.PickleDataSet
+  filepath: ../data/causalift/model/propensity_model.pickle
+
+df_01:
+  type: pandas.CSVDataSet
+  filepath: ../data/causalift/load/df_01.csv
+  load_args:
+    index_col: [partition, index]
+    float_precision: high
+  save_args:
+    index: True
+    float_format: "%.16e"
+
+propensity_histgram:
+  type: pipelinex.HistgramDataSet
+  filepath: img/propensity_histgram.png
+  save_args: # https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.hist.html
+    column: Propensity
+    by: partition
+
+uplift_models_dict:
+  type: pickle.PickleDataSet
+  filepath: ../data/causalift/model/uplift_models_dict.pickle
+
+df_02:
+  type: pandas.CSVDataSet
+  filepath: ../data/causalift/load/df_02.csv
+  load_args:
+    index_col: [partition, index]
+    float_precision: high
+  save_args:
+    index: True
+    float_format: "%.16e"
+
+df_03:
+  type: pandas.CSVDataSet
+  filepath: ../data/causalift/load/df_03.csv
+  load_args:
+    index_col: [partition, index]
+    float_precision: high
+  save_args:
+    index: True
+    float_format: "%.16e"
+
+treated__sim_eval_df:
+  type: pandas.CSVDataSet
+  filepath: ../data/causalift/load/treated__sim_eval_df.csv
+
+untreated__sim_eval_df:
+  type: pandas.CSVDataSet
+  filepath: ../data/causalift/load/untreated__sim_eval_df.csv
+
+estimated_effect_df:
+  type: pandas.CSVDataSet
+  filepath: ../data/causalift/load/estimated_effect_df.csv
