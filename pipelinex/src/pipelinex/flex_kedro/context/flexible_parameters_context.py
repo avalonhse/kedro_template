@@ -41,7 +41,7 @@ class FlexibleParametersContext(KedroContext):
         log.debug("PIPELINES: \n{}".format(self._kedro_pipelines))
         log.debug("params: \n{}".format(self._params))
 
-        print("PIPELINES =",  self._kedro_pipelines['__default__'])
+        #print("PIPELINES =",  self._kedro_pipelines['__default__'])
 
     def _register_kedro_hooks(self, hooks):
 

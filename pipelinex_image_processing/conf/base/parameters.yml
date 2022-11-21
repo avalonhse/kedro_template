@@ -1,0 +1,149 @@
+PIPELINES:
+  __default__:
+    =: pipelinex.FlexiblePipeline
+    module: # None
+    decorator: # None
+    nodes:
+      - inputs: img_source # [Tip] If `func` is omitted, `inputs` will be passed to `outputs` as is
+        outputs: img_00
+
+      - inputs: img_00
+        func:
+          #- { =: pipelinex.CvResize, dsize: "(512, 512)" }
+          - { =: pipelinex.extras.ops.opencv_ops.CvResize, dsize: "(512, 512)" }
+        outputs: img_01
+
+      - inputs: img_01
+        func:
+          #- =: pipelinex.SkimageSegmentationFelzenszwalb
+          - =: pipelinex.extras.ops.skimage_ops.SkimageSegmentationFelzenszwalb
+            scale: 500
+            sigma: 5
+        outputs: raw_graph_seg_img
+
+      - inputs: raw_graph_seg_img
+        func:
+          - { =: pipelinex.fit_to_uint8 }
+        outputs: graph_seg_img
+
+      - inputs: graph_seg_img
+        decorator: { =: pipelinex.dict_io }
+        func: { =: roi.seg_to_roi }
+        outputs: roi
+
+      - inputs: raw_graph_seg_img
+        outputs: raw_sem_seg_img
+
+      # - inputs: img_01
+        # decorator: { =: pipelinex.dict_io }
+        # func:
+          # - { =: semantic_segmentation.get_semantic_segments }
+        # outputs: raw_sem_seg_img
+
+      - inputs: raw_sem_seg_img
+        func:
+          - { =: pipelinex.fit_to_uint8 }
+        outputs: sem_seg_img
+
+      - inputs: img_01
+        func:
+          - { =: pipelinex.NpZerosLike, _ }
+        outputs: zero_img
+
+      - inputs: [zero_img, raw_sem_seg_img]
+        func:
+          - { =: pipelinex.SkimageMarkBoundaries, mode: outer, color: 1 }
+          - { =: pipelinex.NpMean, axis: 2 }
+        outputs: raw_seg_edge_img
+
+      - inputs: raw_seg_edge_img
+        func:
+          - { =: pipelinex.fit_to_uint8 }
+        outputs: seg_edge_img
+
+      - inputs: img_01
+        func:
+          #          - {=: pipelinex.CvBGR2HSV, _: }
+          - { =: pipelinex.CvBGR2Gray, _ }
+          - { =: pipelinex.CvEqualizeHist, _ }
+          #          - {=: pipelinex.CvBlur, ksize: "(5, 5)"}
+          #          - {=: pipelinex.CvMedianBlur, ksize: 5}
+          #          - {=: pipelinex.CvBilateralFilter, d: 9, sigmaColor: 200, sigmaSpace: 200}
+          - { =: pipelinex.CvGaussianBlur, ksize: "(5, 5)", sigmaX: 3 }
+        outputs: img_02
+
+      - inputs: img_02
+        func:
+          #          - {=: pipelinex.CvDiagonalEdgeFilter2d, ddepth: -1, kernel_type: 1}
+          #          - {=: pipelinex.fit_to_uint8}
+          - { =: pipelinex.CvCanny, threshold1: 10, threshold2: 10, apertureSize: 5, L2gradient: True }
+        outputs: img_03
+
+      - inputs: [img_03, roi, raw_seg_edge_img, img_01]
+        decorator: { =: pipelinex.utils.dict_io }
+        func: { =: empty_area.detect_lines_and_estimate_empty_ratio }
+        outputs: [empty_ratios_dict, img_04_raw, img_05]
+
+      - inputs: empty_ratios_dict
+        func: { =: pipelinex.NestedDictToDf, index_name: image }
+        outputs: empty_ratios_df
+
+      - inputs: img_04_raw
+        decorator: { =: pipelinex.dict_io }
+        func: { =: empty_area.visualize_lines_img }
+        outputs: img_04
+
+      - inputs: [img_01, graph_seg_img]
+        func:
+          - { =: pipelinex.SkimageMarkBoundaries, mode: outer }
+          - { =: pipelinex.fit_to_uint8 }
+        outputs: vis_graph_seg_edge_img
+
+      - inputs: [img_01, sem_seg_img]
+        func:
+          - { =: pipelinex.SkimageMarkBoundaries, mode: outer }
+          - { =: pipelinex.fit_to_uint8 }
+        outputs: vis_sem_seg_edge_img
+
+RUN_CONFIG:
+  pipeline_name: __default__
+  runner: SequentialRunner # Set to "ParallelRunner" to run in parallel
+  only_missing: False # Set True to run only missing nodes
+  tags: # None
+  node_names: # None
+  from_nodes: # None
+  to_nodes: # None
+  from_inputs: # None
+  load_versions: # None
+
+HOOKS:
+  - =: pipelinex.MLflowBasicLoggerHook # Configure and log duration time for the pipeline 
+    enable_mlflow: True # Enable configuring and logging to MLflow
+    uri: sqlite:///mlruns/sqlite.db
+    experiment_name: experiment_001
+    artifact_location: ./mlruns/experiment_001
+    offset_hours: 0 # Specify the offset hour (e.g. 0 for UTC/GMT +00:00) to log in MLflow
+
+  - =: pipelinex.MLflowArtifactsLoggerHook # Log artifacts of specified file paths and dataset names
+    enable_mlflow: True # Enable logging to MLflow
+    filepaths_before_pipeline_run: # Optionally specify the file paths to log before pipeline is run
+      - conf/base/parameters.yml
+    datasets_after_node_run: # Optionally specify the dataset names to log after the node is run
+      - model
+    filepaths_after_pipeline_run: # None  # Optionally specify the file paths to log after pipeline is run
+
+  - =: pipelinex.MLflowDataSetsLoggerHook # Log datasets of (list of) float, int, and str classes
+    enable_mlflow: True # Enable logging to MLflow
+
+  - =: pipelinex.MLflowTimeLoggerHook # Log duration time to run each node (task)
+    enable_mlflow: True # Enable logging to MLflow
+
+  #- =: pipelinex.AddTransformersHook # Add transformers
+  #  transformers: 
+      #=: pipelinex.MLflowIOTimeLoggerTransformer # Log duration time to load and save each dataset
+      #=: pipelinex.mlflow_on_kedro.transformers.mlflow.mlflow_io_time_logger.MLflowIOTimeLoggerTransformer
+      #enable_mlflow: True
+
+#
+# Command to run mlflow server:
+# $ mlflow server --host 0.0.0.0 --backend-store-uri sqlite:///mlruns/sqlite.db --default-artifact-root ./mlruns/experiment_001

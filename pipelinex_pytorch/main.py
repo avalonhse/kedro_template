@@ -4,12 +4,13 @@ from pipelinex import __version__
 from pipelinex.flex_kedro.configure import configure_source
 from pipelinex.flex_kedro.context.flexible_context import FlexibleContext
 
-from kedro.framework.session import KedroSession
 from kedro.framework.startup import bootstrap_project
 from kedro.framework.hooks import _create_hook_manager
 
 from kedro.config import ConfigLoader
-from kedro.framework.context import KedroContext
+
+#from kedro.framework.session import KedroSession
+#from kedro.framework.context import KedroContext
 
 if __name__ == "__main__":
    print("pipelinex version: ", __version__)

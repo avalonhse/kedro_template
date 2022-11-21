@@ -1,0 +1,79 @@
+# [reference](https://kedro.readthedocs.io/en/latest/04_user_guide/04_data_catalog.html)
+# [datasets](https://kedro.readthedocs.io/en/latest/kedro.extras.datasets.html)
+# [pipelinex.extras.datasets](https://github.com/Minyus/pipelinex/tree/master/src/pipelinex/extras/datasets)
+
+# [Tip] Keys starting with `_` will be ignored by Kedro, which is useful to use as
+#       a YAML's Anchor or an alternative to commenting out
+
+_images: &images # YAML's Anchor
+  type: pipelinex.ImagesLocalDataSet
+  reverse_color: True
+  load_args:
+    dict_structure: True
+
+_IGNORED_img_source: # Use this instead of the APIDataSet below to load images from the local storage
+  <<: *images
+  path: ../data/pipelinex_image_processing/input/img_00
+
+img_source:
+  type: pipelinex.APIDataSet
+  # type: pipelinex.AsyncAPIDataSet
+  url:
+    #sample_001: https://cdn.foodlogistics.com/files/base/acbm/fl/image/2018/09/960w/GettyImages_485190815.5b9bfb5550ded.jpg
+    #sample_002: https://www.thetrailerconnection.com/zupload/library/180/-1279-840x600-0.jpg
+    sample_001: https://www.thetrailerconnection.com/zupload/library/180/-1279-840x600-0.jpg
+    sample_002: https://www.painterartist.com/static/ptr/images/file-formats/ui-screenshot.jpg
+  attribute: content
+  transforms:
+    - =: io.BytesIO
+    - =: PIL.Image.open
+    - =: numpy.array
+    - =: pipelinex.reverse_channel
+
+img_00:
+  <<: *images
+  path: ../data/pipelinex_image_processing/load/img_00
+
+img_01:
+  <<: *images
+  path: ../data/pipelinex_image_processing/load/img_01
+
+sem_seg_img:
+  <<: *images
+  path: ../data/pipelinex_image_processing/load/sem_seg_img
+  save_args:
+    suffix: .png
+
+seg_edge_img:
+  <<: *images
+  path: ../data/pipelinex_image_processing/load/seg_edge_img
+  save_args:
+    suffix: .png
+
+img_02:
+  <<: *images
+  path: ../data/pipelinex_image_processing/load/img_02
+
+img_03:
+  <<: *images
+  path: ../data/pipelinex_image_processing/load/img_03
+
+img_04:
+  <<: *images
+  path: ../data/pipelinex_image_processing/load/img_04
+
+img_05:
+  <<: *images
+  path: ../data/pipelinex_image_processing/load/img_05
+
+empty_ratios_df:
+  filepath: ../data/pipelinex_image_processing/load/empty_ratios_df.csv
+  type: pipelinex.CSVLocalDataSet
+
+vis_graph_seg_edge_img:
+  <<: *images
+  path: ../data/pipelinex_image_processing/load/vis_graph_seg_edge_img
+
+vis_sem_seg_edge_img:
+  <<: *images
+  path: ../data/pipelinex_image_processing/load/vis_sem_seg_edge_img

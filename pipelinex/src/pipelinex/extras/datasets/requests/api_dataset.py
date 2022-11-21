@@ -207,6 +207,7 @@ class APIDataSet(AbstractDataSet):
 
         output_dict = {}
         for name, response in response_dict.items():
+            
             if isinstance(response, Exception):
                 output_dict[name] = response
                 continue
@@ -230,10 +231,22 @@ class APIDataSet(AbstractDataSet):
                 )
 
             try:
+
                 for transform in self._transforms:
+                    
+                    # Hoang added code
+                    method = transform['='].rsplit('.', 1)[-1]
+                    package_name = transform['='].rsplit('.', 1)[0]
+                    import importlib
+                    transform = getattr(importlib.import_module(package_name), method)
+
+                    # old code
                     output = transform(output)
+
                 output_dict[name] = output
             except Exception as exc:
+                print("Error is " + str(exc) + "\n ############### \n")
+
                 e = DataSetError("Exception", exc)
                 if self._skip_errors:
                     output_dict[name] = e
