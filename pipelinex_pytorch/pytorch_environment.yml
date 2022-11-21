@@ -1,0 +1,63 @@
+
+# conda install mamba -n base -c conda-forge
+
+# mamba env create -f pytorch_environment.yml
+# mamba remove --name kedro --all -y
+# mamba env update --file pytorch_environment.yml --prune
+
+name: kedro
+channels:
+  - default
+  - pytorch
+  - conda-forge
+dependencies:
+  - python=3.9
+  - pip
+  - openssl
+  - more-itertools=9.0.0
+  - ipython=7.33.0
+  - orjson=3.8.1
+  - uvicorn=0.17.6
+  - httpx=0.23.0
+  - conda-forge:uvloop=0.17.0
+  - conda-forge:watchgod=0.8.2
+  - conda-forge:websockets=10.4
+  - conda-forge:python-dotenv=0.21.0
+  - conda-forge:strawberry-graphql 0.125.0
+  - conda-forge:pandas-gbq=0.17.9
+  - anaconda:proto-plus=1.22.1
+  - conda-forge:memory_profiler=0.61.0
+  - pillow=9.2.0
+  - anaconda:plotly=5.9.0
+  - aiofiles=0.6.0
+  - openpyxl=3.0.10
+  - conda-forge:httptools=0.5.0
+  - conda-forge:flatten-dict=0.4.2
+  - anaconda:semver=2.13.0
+  - conda-forge:lxml=4.9.1
+  - conda-forge:google-auth-oauthlib=0.7.1
+  - pytables=3.6.1
+  - pytest-cov
+  - conda-forge:jupyterlab-variableinspector
+  - conda-forge:python-multipart=0.0.5
+  - conda-forge:fastapi=0.66.1
+  - conda-forge:kedro[pandas]=0.18.3
+  - conda-forge:kedro-mlflow=0.11.4
+  #- conda-forge:kedro[pandas]=0.17.7
+  #- conda-forge:kedro-mlflow=0.8.1
+  - conda-forge:pyarrow=6.0.1
+  - conda-forge:minio=7.1.12
+  - s3fs=2022.1.0
+
+  - conda-forge:cudatoolkit=11.6.0
+  - pytorch:pytorch=1.12.1
+  - pytorch:torchvision=0.13.1
+  - conda-forge:shap=0.41.0
+  - conda-forge:pytorch-ignite=0.4.8
+  - pip:
+    - kedro-viz==5.1.1
+    - kedro[pandas]==0.18.3
+    - -e ../pipelinex
+    #- pipelinex==0.7.6
+
+  
