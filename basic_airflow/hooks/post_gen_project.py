@@ -14,7 +14,7 @@ parent_path = os.path.abspath(os.path.join(os.getcwd(), os.pardir)).replace("\\"
 data_path = parent_path + "/data/" + os.path.basename(os.getcwd())
 
 data = "data_path : \"" + data_path + "\" "
-with open("./conf/base/globals.yml", 'w') as f:
+with open("./src/config/base/globals.yml", 'w') as f:
     f.write(data)
 
 from dotenv import load_dotenv
@@ -26,7 +26,7 @@ MINIO_USER = str(os.getenv('MINIO_USER'))
 MINIO_PASSWD = str(os.getenv('MINIO_PASSWD'))
 
 data = "dev_minio: \n key: " +  MINIO_USER + " \n secret: " + MINIO_PASSWD + " \n client_kwargs: \n  endpoint_url : 'http://" + MINIO_IP + ":9000' "
-with open("./conf/local/credentials.yml", 'a') as f:
+with open("./src/config/local/credentials.yml", 'a') as f:
     f.write(data)
 
 data_dirs = ["/01_raw","/02_intermediate","/03_primary","/06_models","/logs"]
