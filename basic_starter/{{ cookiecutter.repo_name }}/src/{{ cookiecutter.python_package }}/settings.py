@@ -38,6 +38,8 @@ https://kedro.readthedocs.io/en/stable/kedro_project_setup/settings.html."""
 
 from kedro.config import TemplatedConfigLoader
 
+CONF_SOURCE = "src/config"
+
 CONFIG_LOADER_CLASS = TemplatedConfigLoader
 CONFIG_LOADER_ARGS = {
     "globals_pattern": "*globals.yml",

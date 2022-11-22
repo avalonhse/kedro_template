@@ -19,7 +19,7 @@ with open("requirements.txt", encoding="utf-8") as f:
 setup(
     name="{{ cookiecutter.python_package }}",
     version="0.1",
-    packages=find_packages(exclude=["tests"]),
+    packages=find_packages(exclude=["tests","config","notebooks"]),
     entry_points={"console_scripts": [entry_point]},
     install_requires=requires,
     extras_require={

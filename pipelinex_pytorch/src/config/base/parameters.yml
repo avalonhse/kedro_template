@@ -234,7 +234,7 @@ HOOKS:
   - =: pipelinex.MLflowArtifactsLoggerHook # Log artifacts of specified file paths and dataset names
     enable_mlflow: True # Enable logging to MLflow
     filepaths_before_pipeline_run: # Optionally specify the file paths to log before pipeline is run
-      - conf/base/parameters.yml
+      - src/config/base/parameters.yml
     datasets_after_node_run: # Optionally specify the dataset names to log after the node is run
       - model
     filepaths_after_pipeline_run: # None  # Optionally specify the file paths to log after pipeline is run

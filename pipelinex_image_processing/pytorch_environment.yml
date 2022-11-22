@@ -62,7 +62,8 @@ dependencies:
     - ocrd-fork-pylsd
     - kedro-viz==5.1.1
     - kedro[pandas]==0.18.3
-    - -e ../pipelinex
+    - git+https://github.com/avalonhse/pipelinex
+    #- -e ../pipelinex
     #- pipelinex==0.7.6
 
   

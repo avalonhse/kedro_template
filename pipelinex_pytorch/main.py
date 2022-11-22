@@ -21,7 +21,7 @@ if __name__ == "__main__":
    source_path = configure_source(project_path)
    print("source path: ", source_path)
 
-   conf_path = str(project_path / "conf")
+   conf_path = str(project_path / "src/config")
    config_loader = ConfigLoader(conf_source=conf_path)
     
    context = FlexibleContext( 

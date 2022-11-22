@@ -14,22 +14,22 @@ from kedro.config import ConfigLoader
 
 
 if __name__ == "__main__":
-    print("pipelinex version: ", __version__)
-    project_path = Path(__file__).resolve().parent
-    print("project path: ", project_path)
-    source_path = configure_source(project_path)
-    print("source path: ", source_path)
+   print("pipelinex version: ", __version__)
+   project_path = Path(__file__).resolve().parent
+   print("project path: ", project_path)
+   source_path = configure_source(project_path)
+   print("source path: ", source_path)
 
-    #context = FlexibleContext(project_path)
-    #context.run()
+   #context = FlexibleContext(project_path)
+   #context.run()
 
-    conf_path = str(project_path / "conf")
-    config_loader = ConfigLoader(conf_source=conf_path)
+   conf_path = str(project_path / "src/config")
+   config_loader = ConfigLoader(conf_source=conf_path)
     
-    context = FlexibleContext( 
-       package_name="pipeline_pytorch",
-       project_path=Path.cwd(),
-       config_loader=config_loader,
-       hook_manager=_create_hook_manager(),
-    )
-    context.run()
+   context = FlexibleContext( 
+      package_name="pipeline_pytorch",
+      project_path=Path.cwd(),
+      config_loader=config_loader,
+      hook_manager=_create_hook_manager(),
+   )
+   context.run()
