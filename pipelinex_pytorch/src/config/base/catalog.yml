@@ -5,6 +5,14 @@ model:
   type: pickle.PickleDataSet # shortcut for kedro.extras.datasets.pickle.PickleDataSet
   filepath: ../data/pytorch/model/model.pickle
 
+#train_dataset:
+#  type: pipelinex.CSVLocalDataSet
+#  filepath: ../data/pytorch/load/train_dataset.csv
+
+#val_dataset:
+#  type: pipelinex.CSVLocalDataSet
+#  filepath: ../data/pytorch/load/val_dataset.csv
+
 submission:
   type: pipelinex.CSVLocalDataSet
   filepath: ../data/pytorch/load/submission.csv

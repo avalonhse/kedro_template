@@ -79,31 +79,31 @@ PIPELINES:
           - { =: pipelinex.CvCanny, threshold1: 10, threshold2: 10, apertureSize: 5, L2gradient: True }
         outputs: img_03
 
-      - inputs: [img_03, roi, raw_seg_edge_img, img_01]
-        decorator: { =: pipelinex.utils.dict_io }
-        func: { =: empty_area.detect_lines_and_estimate_empty_ratio }
-        outputs: [empty_ratios_dict, img_04_raw, img_05]
+      # - inputs: [img_03, roi, raw_seg_edge_img, img_01]
+      #   decorator: { =: pipelinex.utils.dict_io }
+      #   func: { =: empty_area.detect_lines_and_estimate_empty_ratio }
+      #   outputs: [empty_ratios_dict, img_04_raw, img_05]
 
-      - inputs: empty_ratios_dict
-        func: { =: pipelinex.NestedDictToDf, index_name: image }
-        outputs: empty_ratios_df
+      # - inputs: empty_ratios_dict
+      #   func: { =: pipelinex.NestedDictToDf, index_name: image }
+      #   outputs: empty_ratios_df
 
-      - inputs: img_04_raw
-        decorator: { =: pipelinex.dict_io }
-        func: { =: empty_area.visualize_lines_img }
-        outputs: img_04
+      # - inputs: img_04_raw
+      #   decorator: { =: pipelinex.dict_io }
+      #   func: { =: empty_area.visualize_lines_img }
+      #   outputs: img_04
 
-      - inputs: [img_01, graph_seg_img]
-        func:
-          - { =: pipelinex.SkimageMarkBoundaries, mode: outer }
-          - { =: pipelinex.fit_to_uint8 }
-        outputs: vis_graph_seg_edge_img
+      # - inputs: [img_01, graph_seg_img]
+      #   func:
+      #     - { =: pipelinex.SkimageMarkBoundaries, mode: outer }
+      #     - { =: pipelinex.fit_to_uint8 }
+      #   outputs: vis_graph_seg_edge_img
 
-      - inputs: [img_01, sem_seg_img]
-        func:
-          - { =: pipelinex.SkimageMarkBoundaries, mode: outer }
-          - { =: pipelinex.fit_to_uint8 }
-        outputs: vis_sem_seg_edge_img
+      # - inputs: [img_01, sem_seg_img]
+      #   func:
+      #     - { =: pipelinex.SkimageMarkBoundaries, mode: outer }
+      #     - { =: pipelinex.fit_to_uint8 }
+      #   outputs: vis_sem_seg_edge_img
 
 RUN_CONFIG:
   pipeline_name: __default__
