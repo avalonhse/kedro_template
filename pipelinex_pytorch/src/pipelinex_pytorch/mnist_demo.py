@@ -8,8 +8,8 @@ from torchvision.datasets import MNIST
 
 def generate_datasets(parameters={}):
     data_transform = Compose([ToTensor(), Normalize((0.1307,), (0.3081,))])
-    train_dataset = MNIST(download=True, root="../data/pytorch", transform=data_transform, train=True)
-    val_dataset = MNIST(download=False, root="../data/pytorch", transform=data_transform, train=False)
+    train_dataset = MNIST(download=True, root="../data/pipelinex_pytorch", transform=data_transform, train=True)
+    val_dataset = MNIST(download=False, root="../data/pipelinex_pytorch", transform=data_transform, train=False)
 
     import os
     os.environ['CUDA_VISIBLE_DEVICES'] ='0'

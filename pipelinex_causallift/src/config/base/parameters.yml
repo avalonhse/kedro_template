@@ -117,9 +117,9 @@ PIPELINES:
     nodes:
       ### Step 0: Prepare data
 
-      #- inputs: "params:sim_params"
-      #  func: data_prep.generate_data.generate_data_
-      #  outputs: input_df
+      - inputs: "params:sim_params"
+        func: data_prep.generate_data.generate_data_
+        outputs: input_df
 
       - inputs: [input_df, "params:transform_params"]
         func: data_prep.transform_data.transform_data
@@ -162,48 +162,48 @@ PIPELINES:
 
       ### Step 2: Estimate CATE by 2 supervised classification models
 
-      # - inputs: [args, df_01]
-      #   func: causallift.nodes.model_for_each.model_for_treated_fit
-      #   outputs: treated__model_dict
+      - inputs: [args, df_01]
+        func: causallift.nodes.model_for_each.model_for_treated_fit
+        outputs: treated__model_dict
 
-      # - inputs: [args, df_01]
-      #   func: causallift.nodes.model_for_each.model_for_untreated_fit
-      #   outputs: untreated__model_dict
+      - inputs: [args, df_01]
+        func: causallift.nodes.model_for_each.model_for_untreated_fit
+        outputs: untreated__model_dict
 
-      # - inputs: [treated__model_dict, untreated__model_dict]
-      #   func: causallift.nodes.model_for_each.bundle_treated_and_untreated_models
-      #   outputs: uplift_models_dict
+      - inputs: [treated__model_dict, untreated__model_dict]
+        func: causallift.nodes.model_for_each.bundle_treated_and_untreated_models
+        outputs: uplift_models_dict
 
-      # - inputs: [args, df_01, uplift_models_dict]
-      #   func: causallift.nodes.model_for_each.model_for_treated_predict_proba
-      #   outputs: treated__proba
+      - inputs: [args, df_01, uplift_models_dict]
+        func: causallift.nodes.model_for_each.model_for_treated_predict_proba
+        outputs: treated__proba
 
-      # - inputs: [args, df_01, uplift_models_dict]
-      #   func: causallift.nodes.model_for_each.model_for_untreated_predict_proba
-      #   outputs: untreated__proba
+      - inputs: [args, df_01, uplift_models_dict]
+        func: causallift.nodes.model_for_each.model_for_untreated_predict_proba
+        outputs: untreated__proba
 
-      # - inputs: [treated__proba, untreated__proba]
-      #   func: causallift.nodes.model_for_each.compute_cate
-      #   outputs: cate_estimated
+      - inputs: [treated__proba, untreated__proba]
+        func: causallift.nodes.model_for_each.compute_cate
+        outputs: cate_estimated
 
-      # - inputs: [args, df_01, cate_estimated, treated__proba, untreated__proba]
-      #   func: causallift.nodes.model_for_each.add_cate_to_df
-      #   outputs: df_02
+      - inputs: [args, df_01, cate_estimated, treated__proba, untreated__proba]
+        func: causallift.nodes.model_for_each.add_cate_to_df
+        outputs: df_02
 
       ### Step 3 [Optional] Estimate impact by following recommendation based on CATE
 
-      # - inputs: [args, df_02, treatment_fractions]
-      #   func: causallift.nodes.utils.recommend_by_cate
-      #   outputs: df_03
+      - inputs: [args, df_02, treatment_fractions]
+        func: causallift.nodes.utils.recommend_by_cate
+        outputs: df_03
 
-      # - inputs: [args, df_03, uplift_models_dict]
-      #   func: causallift.nodes.model_for_each.model_for_treated_simulate_recommendation
-      #   outputs: treated__sim_eval_df
+      - inputs: [args, df_03, uplift_models_dict]
+        func: causallift.nodes.model_for_each.model_for_treated_simulate_recommendation
+        outputs: treated__sim_eval_df
 
-      # - inputs: [args, df_03, uplift_models_dict]
-      #   func: causallift.nodes.model_for_each.model_for_untreated_simulate_recommendation
-      #   outputs: untreated__sim_eval_df
+      - inputs: [args, df_03, uplift_models_dict]
+        func: causallift.nodes.model_for_each.model_for_untreated_simulate_recommendation
+        outputs: untreated__sim_eval_df
 
-      # - inputs: [args, treated__sim_eval_df, untreated__sim_eval_df]
-      #   func: causallift.nodes.utils.estimate_effect
-      #   outputs: estimated_effect_df
+      - inputs: [args, treated__sim_eval_df, untreated__sim_eval_df]
+        func: causallift.nodes.utils.estimate_effect
+        outputs: estimated_effect_df

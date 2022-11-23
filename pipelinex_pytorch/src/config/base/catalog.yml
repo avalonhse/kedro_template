@@ -3,7 +3,7 @@
 
 model:
   type: pickle.PickleDataSet # shortcut for kedro.extras.datasets.pickle.PickleDataSet
-  filepath: ../data/pytorch/model/model.pickle
+  filepath: ../data/pipelinex_pytorch/model/model.pickle
 
 #train_dataset:
 #  type: pipelinex.CSVLocalDataSet
@@ -15,10 +15,10 @@ model:
 
 submission:
   type: pipelinex.CSVLocalDataSet
-  filepath: ../data/pytorch/load/submission.csv
+  filepath: ../data/pipelinex_pytorch/load/submission.csv
 
 shap_image:
   type: pipelinex.ImagesLocalDataSet
-  path: ../data/pytorch/model/shap_image
+  path: ../data/pipelinex_pytorch/model/shap_image
   save_args:
     suffix: .png

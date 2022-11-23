@@ -29,6 +29,24 @@ from kedro.framework.cli.utils import (
 from kedro.framework.session import KedroSession
 from kedro.utils import load_obj
 
+
+def check_path(directory):
+    import os
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+def check_paths(dirs, common_path):
+    for dir_name in dirs:
+        check_path(common_path + dir_name)
+
+def prepare_data_saving():
+    import os
+    parent_path = os.path.abspath(os.path.join(os.getcwd(), os.pardir)).replace("\\","/")
+    data_path = parent_path + "/data/" + os.path.basename(os.getcwd())
+
+    data_dirs = ["/01_raw","/02_intermediate","/03_primary","/06_models","/logs"]
+    check_paths(data_dirs, data_path)
+
 @click.group(context_settings=CONTEXT_SETTINGS, name=__file__)
 def cli():
     """Command line tools for manipulating a Kedro project."""
@@ -92,6 +110,8 @@ def run(
     config,
     params,
 ):
+    prepare_data_saving()
+
     from pipelinex import __version__
     from pathlib import Path
     print("pipelinex version: ", __version__)

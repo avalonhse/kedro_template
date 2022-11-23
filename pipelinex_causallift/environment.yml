@@ -46,7 +46,7 @@ dependencies:
   - conda-forge:pyarrow=6.0.1
   - conda-forge:minio=7.1.12
   - s3fs=2022.1.0
-  - conda-forge:xgboost=1.7.1
+  - conda-forge:xgboost=1.3.3
   - conda-forge:easydict=1.9
   - pip:
     - kedro-viz==5.1.1

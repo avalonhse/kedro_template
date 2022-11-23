@@ -93,17 +93,17 @@ PIPELINES:
       #   func: { =: empty_area.visualize_lines_img }
       #   outputs: img_04
 
-      # - inputs: [img_01, graph_seg_img]
-      #   func:
-      #     - { =: pipelinex.SkimageMarkBoundaries, mode: outer }
-      #     - { =: pipelinex.fit_to_uint8 }
-      #   outputs: vis_graph_seg_edge_img
+      - inputs: [img_01, graph_seg_img]
+        func:
+          - { =: pipelinex.SkimageMarkBoundaries, mode: outer }
+          - { =: pipelinex.fit_to_uint8 }
+        outputs: vis_graph_seg_edge_img
 
-      # - inputs: [img_01, sem_seg_img]
-      #   func:
-      #     - { =: pipelinex.SkimageMarkBoundaries, mode: outer }
-      #     - { =: pipelinex.fit_to_uint8 }
-      #   outputs: vis_sem_seg_edge_img
+      - inputs: [img_01, sem_seg_img]
+        func:
+          - { =: pipelinex.SkimageMarkBoundaries, mode: outer }
+          - { =: pipelinex.fit_to_uint8 }
+        outputs: vis_sem_seg_edge_img
 
 RUN_CONFIG:
   pipeline_name: __default__
