@@ -1,0 +1,50 @@
+# Parameters for the example pipeline. Feel free to delete these once you
+# remove the example pipeline from hooks.py and the example nodes in
+# `src/pipelines/`
+example_test_data_ratio: 0.2
+example_num_train_iter: 10000
+example_learning_rate: 0.01
+
+# PipelineX settings
+
+RUN_CONFIG:
+  pipeline_name: __default__
+  only_missing: False
+  runner: SequentialRunner
+  tags: # None
+  node_names: # None
+  from_nodes: # None
+  to_nodes: # None
+  from_inputs: # None
+  load_versions: # None
+
+PIPELINES:
+  data_engineer:
+    =: pipelinex.FlexiblePipeline
+    module: # None
+    nodes: 
+      ### Step 0: Prepare data
+      - inputs: [example_iris_data, "params:example_test_data_ratio" ]
+        func: hoang.nodes.data_engineer.split_data
+        outputs: { train_x : example_train_x, train_y : example_train_y, test_x : example_test_x, test_y : example_test_y }
+
+  data_science:
+    =: pipelinex.FlexiblePipeline
+    module: # None
+    nodes:
+      - inputs: [example_train_x, example_train_y, parameters]
+        func: hoang.nodes.data_science.train_model
+        outputs: example_model
+
+      - inputs: { model: example_model, test_x: example_test_x }
+        func: hoang.nodes.data_science.predict
+        outputs: example_predictions
+
+      - inputs: [example_predictions, example_test_y]
+        func: hoang.nodes.data_science.report_accuracy
+        outputs: null
+
+combined_pipelines:
+  __default__:
+    - data_engineer
+    - data_science

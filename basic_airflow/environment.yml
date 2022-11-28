@@ -11,21 +11,21 @@ channels:
   - pytorch
   - conda-forge
 dependencies:
-  - python=3.9
+  - python=3.9.15
   - pip
   - openssl
-  - future
+  - future=0.18.2
   - more-itertools=9.0.0
   - ipython=7.33.0
   - orjson=3.8.1
-  - h11
+  - h11=0.12.0
   - uvicorn=0.17.6
   - httpx=0.23.0
   - pandas=1.5.1
   - pillow=9.2.0
   - aiofiles=0.6.0
   - pytables=3.6.1
-  - pytest-cov
+  - pytest-cov=4.0.0
   - conda-forge:jupyterlab-variableinspector
   - conda-forge:numpy=1.23.4
   - conda-forge:python-multipart=0.0.5
@@ -34,13 +34,15 @@ dependencies:
   - conda-forge:kedro-mlflow=0.11.4
   - conda-forge:minio=7.1.12
   - s3fs=2022.1.0
-  - matplotlib
-  - scikit-learn
-  - seaborn
-  - pillow
+  - matplotlib=3.6.2
+  - scikit-learn=1.1.3
+  - seaborn=0.12.1
+  - pillow=9.2.0
   - pip:
     - kedro-viz==5.1.1
     - kedro[pandas]==0.18.3
+    - git+https://github.com/avalonhse/pipelinex
+
 #variables:
 #  HDF5_DIR: 'C:\Program Files\HDF_Group\HDF5\1.12.2'
   

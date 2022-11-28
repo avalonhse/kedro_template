@@ -24,7 +24,8 @@ The data science pipeline includes:
 * A node to report the accuracy of the predictions performed by the model
 
 ```bash
-pip install kedro
+mamba remove --name kedro --all -y
+mamba env create -f ./kedro_template/basic_airflow/environment.yml
 kedro new --starter=./kedro_template/basic_airflow
 cd <my-project-name>  # change directory into newly created project directory
 ```
