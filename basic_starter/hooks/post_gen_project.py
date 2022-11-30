@@ -14,8 +14,10 @@ parent_path = os.path.abspath(os.path.join(os.getcwd(), os.pardir)).replace("\\"
 data_path = parent_path + "/data/" + os.path.basename(os.getcwd())
 
 data = "data_path : \"" + data_path + "\" "
+package_name = '\npackage_name : \"{{ cookiecutter.project_name }}\" '
+
 with open("./src/config/base/globals.yml", 'w') as f:
-    f.write(data)
+    f.writelines([data, package_name])
 
 #project_name = '{{ cookiecutter.project_name }}'
 

@@ -1,0 +1,78 @@
+# PipelineX settings
+
+RUN_CONFIG:
+  pipeline_name: __default__
+  only_missing: False
+  runner: SequentialRunner
+  tags: # None
+  node_names: # None
+  from_nodes: # None
+  to_nodes: # None
+  from_inputs: # None
+  load_versions: # None
+
+PIPELINES:
+  data_processing:
+    =: pipelinex.FlexiblePipeline
+    module: # None
+    nodes: 
+      ### Step 0: Prepare data
+      - inputs: "companies"
+        func: ${package_name}.nodes.data_engineer.preprocess_companies
+        outputs: "preprocessed_companies"
+
+      - inputs: "shuttles"
+        func: ${package_name}.nodes.data_engineer.preprocess_shuttles
+        outputs: "preprocessed_shuttles"
+
+      - inputs: ["preprocessed_shuttles", "preprocessed_companies", "reviews"]
+        func: ${package_name}.nodes.data_engineer.create_model_input_table
+        outputs: "model_input_table"
+
+  data_science:
+   =: pipelinex.FlexiblePipeline
+   module: # None
+   nodes: 
+      - inputs: ["model_input_table", "params:data_science.active_modelling_pipeline.model_options"]
+        func: ${package_name}.nodes.data_science.split_data
+        outputs: ["X_train", "X_test", "y_train", "y_test"]
+
+      - inputs: ["X_train", "y_train"]
+        func: ${package_name}.nodes.data_science.train_model
+        outputs: data_science.active_modelling_pipeline.regressor
+
+      - inputs: ["data_science.active_modelling_pipeline.regressor", "X_test", "y_test"]
+        func: ${package_name}.nodes.data_science.evaluate_model
+        outputs: null
+
+templated_pipelines:
+  pipelines:
+    data_science:
+      =: pipelinex.FlexiblePipeline
+      module: # None
+      nodes: 
+        - inputs: ["model_input_table", "params:namespace.model_options"]
+          func: ${package_name}.nodes.data_science.split_data
+          outputs: ["namespace.X_train", "namespace.X_test", "namespace.y_train", "namespace.y_test"]
+
+        - inputs: ["namespace.X_train", "namespace.y_train"]
+          func: ${package_name}.nodes.data_science.train_model
+          outputs: namespace.regressor
+
+        - inputs: ["namespace.regressor", "namespace.X_test", "namespace.y_test"]
+          func: ${package_name}.nodes.data_science.evaluate_model
+          outputs: null
+  instances:
+    - name: ds_pipeline_1
+      template: data_science
+      namespace: data_science.active_modelling_pipeline
+
+    - name: ds_pipeline_2
+      template: data_science
+      namespace: data_science.candidate_modelling_pipeline
+
+combined_pipelines:
+  __default__:
+    - data_processing
+    - ds_pipeline_1
+    - ds_pipeline_2

@@ -25,7 +25,7 @@ PIPELINES:
     nodes: 
       ### Step 0: Prepare data
       - inputs: [example_iris_data, "params:example_test_data_ratio" ]
-        func: hoang.nodes.data_engineer.split_data
+        func: ${package_name}.nodes.data_engineer.split_data
         outputs: { train_x : example_train_x, train_y : example_train_y, test_x : example_test_x, test_y : example_test_y }
 
   data_science:
@@ -33,15 +33,15 @@ PIPELINES:
     module: # None
     nodes:
       - inputs: [example_train_x, example_train_y, parameters]
-        func: hoang.nodes.data_science.train_model
+        func: ${package_name}.nodes.data_science.train_model
         outputs: example_model
 
       - inputs: { model: example_model, test_x: example_test_x }
-        func: hoang.nodes.data_science.predict
+        func: ${package_name}.nodes.data_science.predict
         outputs: example_predictions
 
       - inputs: [example_predictions, example_test_y]
-        func: hoang.nodes.data_science.report_accuracy
+        func: ${package_name}.nodes.data_science.report_accuracy
         outputs: null
 
 combined_pipelines:

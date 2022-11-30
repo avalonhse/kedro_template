@@ -31,6 +31,12 @@ from kedro.framework.cli.utils import (
 from kedro.framework.session import KedroSession
 from kedro.utils import load_obj
 
+def insert_params_template(element, params):
+    #print("Params =", params,". Element =", element)
+    if element in params:
+        element = params[element]
+        #print("checked = ", element)
+    return element
 
 def check_path(directory):
     import os
@@ -126,23 +132,45 @@ def run(
     source_path = configure_source(project_path)
     print("source path: ", source_path)
 
-    import yaml
-    with open("src/config/base/param_components.yml", "r") as stream:
-        try:
-            content = yaml.safe_load(stream)
-            for node_name in content["combined_pipelines"]:
-                #node_name = "__default__"
-                content["PIPELINES"][node_name] = content["PIPELINES"] [content["combined_pipelines"][node_name][0]]
+    from os.path import exists
+    if exists("src/config/base/param_components.yml"):
+        import yaml
+        with open("src/config/base/param_components.yml", "r") as stream:
+            try:
+                content = yaml.safe_load(stream)
 
-                for node in content["combined_pipelines"][node_name][1:]:
-                    content["PIPELINES"][node_name]["nodes"].extend(content["PIPELINES"] [node]["nodes"])
+                if "templated_pipelines" in content:
+                    for pipeline in content["templated_pipelines"]["instances"]:
+                        # deep copy the 1st pipeline to new pipeline
+                        import copy
+                        new_pipeline = copy.deepcopy(content["templated_pipelines"]["pipelines"][pipeline["template"]])
+                        for node in new_pipeline["nodes"]:
+                            for element in node:
+                                if isinstance(node[element],list):
+                                    for index, sub_element in enumerate(node[element]):
+                                        node[element][index] = sub_element.replace("namespace",pipeline["namespace"])
+                                if isinstance(node[element],str):
+                                    node[element] = node[element].replace("namespace",pipeline["namespace"])
+                            node["name"]=pipeline["name"]+"_"+node["func"]
+                            #print("Node =", node)
+                        content["PIPELINES"][pipeline["name"]] = new_pipeline
+                
+                #### combined pipeline
+                if "combined_pipelines" in content:
+                    for pipeline_name in content["combined_pipelines"]:
+                        # deep copy the 1st pipeline to new pipeline
+                        content["PIPELINES"][pipeline_name] = content["PIPELINES"] [content["combined_pipelines"][pipeline_name][0]]
 
-            import io
-            with io.open("src/config/base/parameters.yml", 'w', encoding='utf8') as outfile:
-                yaml.dump(content, outfile, default_flow_style=False, allow_unicode=True)
+                        # copy NODE contents of the next 2nd pipelines to the content of the new pipeline
+                        for pipeline in content["combined_pipelines"][pipeline_name][1:]:
+                            content["PIPELINES"][pipeline_name]["nodes"].extend(content["PIPELINES"] [pipeline]["nodes"])
 
-        except yaml.YAMLError as exc:
-            print(exc)
+                import io
+                with io.open("src/config/base/parameters.yml", 'w', encoding='utf8') as outfile:
+                    yaml.dump(content, outfile, default_flow_style=False, allow_unicode=True)
+
+            except yaml.YAMLError as exc:
+                print(exc)
 
     from kedro.framework.project import settings
     conf_path = str(project_path / settings.CONF_SOURCE)

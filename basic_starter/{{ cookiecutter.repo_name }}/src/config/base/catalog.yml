@@ -74,11 +74,11 @@ model_input_table:
 data_science.active_modelling_pipeline.regressor:
   type: pickle.PickleDataSet
   filepath:  ${data_path}/06_models/regressor_active.pickle
-  versioned: true
+  #versioned: true
   layer: models
 
 data_science.candidate_modelling_pipeline.regressor:
  type: pickle.PickleDataSet
  filepath:  ${data_path}/06_models/regressor_candidate.pickle
- versioned: true
+ #versioned: true
  layer: models

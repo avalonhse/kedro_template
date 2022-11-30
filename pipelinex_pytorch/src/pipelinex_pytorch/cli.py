@@ -1,6 +1,8 @@
 """Command line tools for manipulating a Kedro project.
 Intended to be invoked via `kedro`."""
+
 import click
+import kedro
 from kedro.framework.cli.project import (
     ASYNC_ARG_HELP,
     CONFIG_FILE_HELP,
@@ -29,6 +31,12 @@ from kedro.framework.cli.utils import (
 from kedro.framework.session import KedroSession
 from kedro.utils import load_obj
 
+def insert_params_template(element, params):
+    #print("Params =", params,". Element =", element)
+    if element in params:
+        element = params[element]
+        #print("checked = ", element)
+    return element
 
 def check_path(directory):
     import os
@@ -117,20 +125,68 @@ def run(
     print("pipelinex version: ", __version__)
     project_path = Path(__file__).resolve().parent.parent.parent
     print("project path: ", project_path)
+    package_name = Path(__file__).resolve().parent.name
+    print("package_name: ", package_name)
 
     from pipelinex.flex_kedro.configure import configure_source
     source_path = configure_source(project_path)
     print("source path: ", source_path)
 
-    from kedro.config import ConfigLoader
-    conf_path = str(project_path / "src/config")
-    config_loader = ConfigLoader(conf_source=conf_path)
+    from os.path import exists
+    if exists("src/config/base/param_components.yml"):
+        import yaml
+        with open("src/config/base/param_components.yml", "r") as stream:
+            try:
+                content = yaml.safe_load(stream)
 
+                if "templated_pipelines" in content:
+                    for pipeline in content["templated_pipelines"]["instances"]:
+                        # deep copy the 1st pipeline to new pipeline
+                        import copy
+                        new_pipeline = copy.deepcopy(content["templated_pipelines"]["pipelines"][pipeline["template"]])
+                        for node in new_pipeline["nodes"]:
+                            for element in node:
+                                if isinstance(node[element],list):
+                                    for index, sub_element in enumerate(node[element]):
+                                        node[element][index] = sub_element.replace("namespace",pipeline["namespace"])
+                                if isinstance(node[element],str):
+                                    node[element] = node[element].replace("namespace",pipeline["namespace"])
+                            node["name"]=pipeline["name"]+"_"+node["func"]
+                            #print("Node =", node)
+                        content["PIPELINES"][pipeline["name"]] = new_pipeline
+                
+                #### combined pipeline
+                if "combined_pipelines" in content:
+                    for pipeline_name in content["combined_pipelines"]:
+                        # deep copy the 1st pipeline to new pipeline
+                        content["PIPELINES"][pipeline_name] = content["PIPELINES"] [content["combined_pipelines"][pipeline_name][0]]
+
+                        # copy NODE contents of the next 2nd pipelines to the content of the new pipeline
+                        for pipeline in content["combined_pipelines"][pipeline_name][1:]:
+                            content["PIPELINES"][pipeline_name]["nodes"].extend(content["PIPELINES"] [pipeline]["nodes"])
+
+                import io
+                with io.open("src/config/base/parameters.yml", 'w', encoding='utf8') as outfile:
+                    yaml.dump(content, outfile, default_flow_style=False, allow_unicode=True)
+
+            except yaml.YAMLError as exc:
+                print(exc)
+
+    from kedro.framework.project import settings
+    conf_path = str(project_path / settings.CONF_SOURCE)
+    if settings.CONFIG_LOADER_CLASS == kedro.config.TemplatedConfigLoader:
+        config_loader = settings.CONFIG_LOADER_CLASS(
+            conf_source=conf_path,
+            globals_pattern = settings.CONFIG_LOADER_ARGS["globals_pattern"]
+        )
+    else:
+        config_loader = settings.CONFIG_LOADER_CLASS(conf_source=conf_path)
+    
     ############# FlexibleContext  ##########################
     from pipelinex.flex_kedro.context.flexible_context import FlexibleContext
     from kedro.framework.hooks import _create_hook_manager
     context = FlexibleContext( 
-      package_name="pipeline_causallift",
+      package_name=package_name,
       project_path=Path.cwd(),
       config_loader=config_loader,
       hook_manager=_create_hook_manager(),

@@ -10,6 +10,8 @@ To use this starter, create a new Kedro project using the commands below. To mak
 
 ```bash
 pip install kedro
+mamba remove --name kedro --all -y
+mamba env create -f ./kedro_template/basic_starter/environment.yml
 kedro new --starter=./kedro_template/basic_starter
 cd <my-project-name>  # change directory into newly created project directory
 ```
