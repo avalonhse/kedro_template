@@ -121,8 +121,9 @@ def run(
     prepare_data_saving()
 
     from pipelinex import __version__
-    from pathlib import Path
     print("pipelinex version: ", __version__)
+
+    from pathlib import Path
     project_path = Path(__file__).resolve().parent.parent.parent
     print("project path: ", project_path)
     package_name = Path(__file__).resolve().parent.name

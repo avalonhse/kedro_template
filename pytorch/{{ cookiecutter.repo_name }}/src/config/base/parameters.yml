@@ -188,7 +188,7 @@ PIPELINES:
     #decorator: pipelinex.log_time
     nodes:
       - inputs: parameters
-        func: pipelinex_pytorch.mnist_demo.generate_datasets
+        func: ${package_name}.nodes.mnist_demo.generate_datasets
         outputs:
           - train_dataset
           - val_dataset
@@ -205,7 +205,7 @@ PIPELINES:
       - inputs:
           - model
           - val_dataset # test_dataset in actual use
-        func: pipelinex_pytorch.mnist_demo.infer
+        func: ${package_name}.nodes.mnist_demo.infer
         outputs: submission
 
       # - inputs:

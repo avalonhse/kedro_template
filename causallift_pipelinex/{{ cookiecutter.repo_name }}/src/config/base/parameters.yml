@@ -118,15 +118,15 @@ PIPELINES:
       ### Step 0: Prepare data
 
       - inputs: "params:sim_params"
-        func: data_prep.generate_data.generate_data_
+        func: ${package_name}.nodes.generate_data.generate_data_
         outputs: input_df
 
       - inputs: [input_df, "params:transform_params"]
-        func: data_prep.transform_data.transform_data
+        func: ${package_name}.nodes.transform_data.transform_data
         outputs: transformed_df
 
       - inputs: [transformed_df, "params:test_size", "params:seed"]
-        func: data_prep.split_data.split_data
+        func: ${package_name}.nodes.split_data.split_data
         outputs: [train_df, test_df]
 
       ### Step 1: Prepare for Uplift modeling and optionally estimate propensity scores using a supervised classification model

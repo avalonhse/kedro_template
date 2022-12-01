@@ -1,0 +1,81 @@
+
+# conda install mamba -n base -c conda-forge
+
+# mamba env create -f pytorch_environment.yml
+# mamba remove --name kedro --all -y
+# mamba env update --file pytorch_environment.yml --prune
+
+name: kedro
+channels:
+  - default
+  - pytorch
+  - conda-forge
+dependencies:
+  - conda-forge:python=3.9.15
+  - pip=22.3.1
+  - conda-forge:openssl=1.1.1s
+
+    # DL
+  - conda-forge:google-auth-oauthlib=0.7.1
+  - conda-forge:cudatoolkit=11.3.1=h9edb442_11
+  - pytorch:pytorch=1.12.1=py3.9_cuda11.3_cudnn8.3.2_0
+  - pytorch:torchvision=0.13.1=py39_cu113
+  - conda-forge:pytorch-ignite=0.4.8=pyhd8ed1ab_0
+
+  # Calculation
+  - conda-forge:pandas-gbq=0.17.9
+
+  # Jupyter
+  - conda-forge:more-itertools=9.0.0
+  - conda-forge:ipython=7.33.0
+  - conda-forge:jupyterlab-variableinspector=3.0.9
+
+  ### Viz
+  - anaconda:plotly=5.9.0
+
+  ### Web
+  - conda-forge:orjson=3.8.1
+  - conda-forge:uvicorn=0.17.6
+  - conda-forge:httpx=0.23.0
+  - conda-forge:uvloop=0.17.0
+  - conda-forge:watchgod=0.8.2
+  - conda-forge:websockets=10.4
+  - conda-forge:python-dotenv=0.21.0
+  - conda-forge:strawberry-graphql 0.125.0
+  - conda-forge:aiofiles=0.6.0
+  - conda-forge:httptools=0.5.0
+  - conda-forge:fastapi=0.66.1
+  - conda-forge:python-multipart=0.0.5
+
+  ### Image
+  - conda-forge:pillow=9.2.0
+  - conda-forge:shap=0.41.0
+
+  - conda-forge:openpyxl=3.0.10
+  - anaconda:semver=2.13.0
+  - conda-forge:lxml=4.9.1
+  - conda-forge:pytables=3.6.1
+  - conda-forge:pytest-cov=4.0.0
+
+  ### Kedro related
+  - conda-forge:kedro[pandas]=0.18.3
+  - conda-forge:kedro-mlflow=0.11.4
+  #- conda-forge:kedro[pandas]=0.17.7
+  #- conda-forge:kedro-mlflow=0.8.1
+  - anaconda:proto-plus=1.22.1
+  - conda-forge:memory_profiler=0.61.0
+  - conda-forge:flatten-dict=0.4.2
+
+  ### Storage
+  - conda-forge:pyarrow=6.0.1
+  - conda-forge:minio=7.1.12
+  - conda-forge:s3fs=2022.1.0
+
+  - pip:
+    - kedro-viz==5.1.1
+    - kedro[pandas]==0.18.3
+    - git+https://github.com/avalonhse/pipelinex
+    #- -e ../pipelinex
+    #- pipelinex==0.7.6
+
+  
