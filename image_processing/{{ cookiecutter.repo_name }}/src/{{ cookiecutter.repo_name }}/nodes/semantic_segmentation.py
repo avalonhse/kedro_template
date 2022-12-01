@@ -3,6 +3,7 @@ import cv2
 from keras_segmentation.pretrained import pspnet_50_ADE_20K
 from keras_segmentation.predict import predict
 
+#import pipelinex
 
 def predict_segmentation(model, img):
     resized_img = cv2.resize(img, (473, 473))
@@ -12,6 +13,14 @@ def predict_segmentation(model, img):
 
 
 def get_semantic_segments(img):
+    #img = pipelinex.dict_io(img)
+    #print(type(img))
+    #print(img)
+    
     model = pspnet_50_ADE_20K()
-    out = predict_segmentation(model, img)
+
+    out = {}
+    for image_name in img:
+        out[image_name] = predict_segmentation(model, img[image_name])
+    
     return out

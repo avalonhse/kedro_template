@@ -28,17 +28,16 @@ PIPELINES:
 
       - inputs: graph_seg_img
         decorator: { =: pipelinex.dict_io }
-        func: { =: roi.seg_to_roi }
+        #func: { =: ${package_name}.nodes.roi.seg_to_roi }
+        func: ${package_name}.nodes.roi.seg_to_roi
         outputs: roi
 
-      - inputs: raw_graph_seg_img
+      - inputs: img_01
+        decorator: { =: pipelinex.dict_io }
+        #func:
+        #  - { =: semantic_segmentation.get_semantic_segments }
+        func: ${package_name}.nodes.semantic_segmentation.get_semantic_segments
         outputs: raw_sem_seg_img
-
-      # - inputs: img_01
-        # decorator: { =: pipelinex.dict_io }
-        # func:
-          # - { =: semantic_segmentation.get_semantic_segments }
-        # outputs: raw_sem_seg_img
 
       - inputs: raw_sem_seg_img
         func:
